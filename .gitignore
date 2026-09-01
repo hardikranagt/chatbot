@@ -1,0 +1,19 @@
+# Dependencies
+frontend/node_modules/
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+backend/venv/
+
+# Vector store (rebuilt via ingest.py)
+backend/chroma_db/
+
+# Environment
+.env
+.env.local
+
+# OS
+.DS_Store
+Thumbs.db
