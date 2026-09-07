@@ -6,7 +6,7 @@ actually relevant enough to answer from (closed-domain gate).
 import os
 import chromadb
 
-from ollama_client import get_embedding
+from gemini_client import get_embedding
 
 CHROMA_DIR = os.path.join(os.path.dirname(__file__), "chroma_db")
 COLLECTION_NAME = "company_policies"

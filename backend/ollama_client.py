@@ -36,7 +36,11 @@ def get_embeddings_batch(texts: list[str]) -> list[list[float]]:
     return [get_embedding(t) for t in texts]
 
 
-def generate_answer(question: str, context_chunks: list[str]) -> str:
+def generate_answer(
+    question: str,
+    context_chunks: list[str],
+    history: list[dict] | None = None,
+) -> str:
     """
     Ask llama3.1 to answer STRICTLY using the provided context chunks.
     If the context doesn't contain the answer, the model is instructed
@@ -63,13 +67,14 @@ def generate_answer(question: str, context_chunks: list[str]) -> str:
         f"CONTEXT:\n{context_text}"
     )
 
-    return _chat_with_retry(system_prompt, question)
+    return _chat_with_retry(system_prompt, question, history)
 
 
 def generate_hybrid_answer(
     question: str,
     context_chunks: list[str],
     web_context: str,
+    history: list[dict] | None = None,
 ) -> str:
     """
     Hybrid mode: answer using BOTH internal policy documents AND web search
@@ -93,10 +98,13 @@ def generate_hybrid_answer(
         "- Keep answers concise and well-structured.\n"
     )
 
-    return _chat_with_retry(system_prompt, question)
+    return _chat_with_retry(system_prompt, question, history)
 
 
-def generate_standalone_answer(question: str) -> str:
+def generate_standalone_answer(
+    question: str,
+    history: list[dict] | None = None,
+) -> str:
     """
     Standalone LLM mode: answer directly from the model's training data,
     with no retrieval or external context.
@@ -107,19 +115,36 @@ def generate_standalone_answer(question: str) -> str:
         "Be accurate and well-structured in your responses."
     )
 
-    return _chat_with_retry(system_prompt, question)
+    return _chat_with_retry(system_prompt, question, history)
 
 
 # ── internal helper ──────────────────────────────────────────────
 
-def _chat_with_retry(system_prompt: str, user_message: str) -> str:
-    """Send a chat request to Ollama with retry logic for cold-start 500s."""
+def _chat_with_retry(
+    system_prompt: str,
+    user_message: str,
+    history: list[dict] | None = None,
+) -> str:
+    """
+    Send a chat request to Ollama with retry logic for cold-start 500s.
+    Conversation history (if provided) is inserted between the system
+    prompt and the current user message so the LLM can resolve follow-ups.
+    """
+    messages = [{"role": "system", "content": system_prompt}]
+
+    # Inject conversation history (last N turns from the frontend)
+    if history:
+        for msg in history:
+            messages.append({
+                "role": msg["role"],
+                "content": msg["content"],
+            })
+
+    messages.append({"role": "user", "content": user_message})
+
     payload = {
         "model": CHAT_MODEL,
-        "messages": [
-            {"role": "system", "content": system_prompt},
-            {"role": "user", "content": user_message},
-        ],
+        "messages": messages,
         "stream": False,
         "options": {"temperature": 0.1},
     }

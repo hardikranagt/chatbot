@@ -122,10 +122,16 @@ body {
 /* ───────────────────── Mode Tabs ───────────────────── */
 .mode-tabs-bar {
   display: flex;
-  gap: 6px;
+  justify-content: space-between;
+  align-items: center;
   padding: 12px 20px;
   background: var(--bg-secondary);
   border-bottom: 1px solid var(--border);
+}
+
+.tabs-group {
+  display: flex;
+  gap: 6px;
 }
 
 .mode-tab {
@@ -352,6 +358,20 @@ body {
   border-radius: var(--radius-sm) var(--radius-md) var(--radius-md) var(--radius-md);
 }
 
+/* Blinking cursor shown while streaming */
+.message-body--streaming::after {
+  content: '▍';
+  display: inline-block;
+  animation: blink-cursor 0.7s steps(1) infinite;
+  color: var(--text-accent);
+  margin-left: 2px;
+}
+
+@keyframes blink-cursor {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0; }
+}
+
 /* ───────────────────── Typing Indicator ───────────────────── */
 .message-body.typing {
   color: var(--text-secondary);
@@ -478,6 +498,110 @@ body {
   box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15);
 }
 
+/* ── Custom Model Menu ── */
+.model-menu-container {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.model-menu-btn {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 10px 16px !important;
+  background: var(--surface) !important;
+  color: var(--text-secondary) !important;
+  border: 1px solid var(--border) !important;
+  border-radius: var(--radius-full) !important;
+  font-weight: 500 !important;
+  transition: all var(--transition) !important;
+  box-shadow: none !important;
+}
+
+.model-menu-btn svg {
+  width: 16px;
+  height: 16px;
+}
+
+.model-menu-btn:hover:not(:disabled) {
+  background: var(--surface-hover) !important;
+  color: var(--text-primary) !important;
+  border-color: var(--border) !important;
+  transform: none !important;
+}
+
+.model-dropdown {
+  position: absolute;
+  bottom: calc(100% + 12px);
+  right: 0;
+  width: 240px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 8px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  z-index: 100;
+  animation: slide-up 0.15s ease-out;
+}
+
+@keyframes slide-up {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.model-option {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 16px 12px 36px !important; /* space for checkmark */
+  background: transparent !important;
+  color: var(--text-primary) !important;
+  border: none !important;
+  border-radius: 12px !important;
+  text-align: left;
+  box-shadow: none !important;
+  transform: none !important;
+}
+
+.model-option:hover {
+  background: rgba(255, 255, 255, 0.05) !important;
+}
+
+.model-check {
+  position: absolute;
+  left: 12px;
+  display: flex;
+  color: var(--text-primary);
+}
+
+.model-check svg {
+  width: 18px;
+  height: 18px;
+}
+
+.model-option-text {
+  display: flex;
+  flex-direction: column;
+}
+
+.model-name {
+  font-weight: 600;
+  font-size: 14px;
+  line-height: 1.2;
+}
+
+.model-desc {
+  font-size: 12px;
+  color: var(--text-secondary);
+  font-weight: 400;
+  margin-top: 4px;
+}
+
 .input-bar button {
   padding: 14px 22px;
   border: none;
@@ -501,6 +625,57 @@ body {
 .input-bar button:disabled {
   background: var(--surface);
   color: var(--text-secondary);
+  cursor: not-allowed;
+}
+
+/* ───────────────────── Mic Button ───────────────────── */
+.mic-btn {
+  width: 46px;
+  height: 46px;
+  border-radius: 50%;
+  border: 1px solid var(--border);
+  background: var(--surface);
+  color: var(--text-secondary);
+  font-size: 18px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all var(--transition);
+  flex-shrink: 0;
+  padding: 0;
+}
+
+.mic-btn:hover:not(:disabled) {
+  background: var(--surface-hover);
+  border-color: var(--text-accent);
+  color: var(--text-primary);
+}
+
+.mic-btn--active {
+  background: rgba(239, 68, 68, 0.15);
+  border-color: #ef4444;
+  color: #ef4444;
+  animation: mic-pulse 1.5s ease-in-out infinite;
+}
+
+.mic-btn--active:hover:not(:disabled) {
+  background: rgba(239, 68, 68, 0.25);
+  border-color: #ef4444;
+  color: #ef4444;
+}
+
+@keyframes mic-pulse {
+  0%, 100% {
+    box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.4);
+  }
+  50% {
+    box-shadow: 0 0 0 8px rgba(239, 68, 68, 0);
+  }
+}
+
+.mic-btn:disabled {
+  opacity: 0.4;
   cursor: not-allowed;
 }
 
